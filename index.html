@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>전자계산기</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --accent: #22c55e;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 30% 20%, rgba(34, 197, 94, 0.2), transparent 35%),
+                  radial-gradient(circle at 80% 0%, rgba(59, 130, 246, 0.25), transparent 45%),
+                  var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 24px;
+    }
+
+    .calculator {
+      width: min(420px, 100%);
+      background: linear-gradient(145deg, #111827, #0b1222);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .display {
+      padding: 24px;
+      text-align: right;
+      background: linear-gradient(160deg, rgba(34, 197, 94, 0.08), rgba(59, 130, 246, 0.04));
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .display .history {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      min-height: 20px;
+    }
+
+    .display .result {
+      margin: 6px 0 0;
+      font-size: clamp(2rem, 5vw + 0.5rem, 3rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      word-break: break-all;
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding: 20px 24px 24px;
+      background: radial-gradient(circle at 20% 0%, rgba(34, 197, 94, 0.1), transparent 40%),
+                  radial-gradient(circle at 90% 20%, rgba(59, 130, 246, 0.08), transparent 45%);
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    button.operator {
+      background: rgba(34, 197, 94, 0.12);
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+
+    button.action {
+      color: #fbbf24;
+      border-color: rgba(251, 191, 36, 0.35);
+      background: rgba(251, 191, 36, 0.08);
+    }
+
+    button.equals {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border: none;
+      color: #0f172a;
+      box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
+    }
+
+    button.zero {
+      grid-column: span 2;
+    }
+
+    .footer {
+      padding: 12px 24px 20px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      background: rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator" role="application" aria-label="간단한 전자계산기">
+    <header>
+      <h1>전자계산기</h1>
+      <span class="chip">기본 사칙연산</span>
+    </header>
+
+    <div class="display" aria-live="polite">
+      <p class="history" id="history" aria-label="이전 계산"></p>
+      <p class="result" id="result" aria-label="현재 값">0</p>
+    </div>
+
+    <div class="keys">
+      <button class="action" data-action="clear">AC</button>
+      <button class="action" data-action="delete">⌫</button>
+      <button class="action" data-action="percent">%</button>
+      <button class="operator" data-operation="/">÷</button>
+
+      <button data-number>7</button>
+      <button data-number>8</button>
+      <button data-number>9</button>
+      <button class="operator" data-operation="*">×</button>
+
+      <button data-number>4</button>
+      <button data-number>5</button>
+      <button data-number>6</button>
+      <button class="operator" data-operation="-">−</button>
+
+      <button data-number>1</button>
+      <button data-number>2</button>
+      <button data-number>3</button>
+      <button class="operator" data-operation="+">+</button>
+
+      <button class="zero" data-number>0</button>
+      <button data-action="decimal">·</button>
+      <button class="equals" data-action="equals">=</button>
+    </div>
+
+    <div class="footer">키보드로도 입력할 수 있습니다 (0-9, +, -, *, /, Enter, Backspace, Esc).</div>
+  </div>
+
+  <script>
+    const historyEl = document.getElementById('history');
+    const resultEl = document.getElementById('result');
+
+    let current = '0';
+    let previous = null;
+    let operation = null;
+    let overwrite = false;
+
+    const formatNumber = (value) => {
+      if (!Number.isFinite(value)) return '에러';
+      const [integer, decimal = ''] = value.toString().split('.');
+      const withComma = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return decimal ? `${withComma}.${decimal}` : withComma;
+    };
+
+    const formatDisplay = (valueStr) => {
+      if (valueStr === '-') return '-';
+      const numeric = Number(valueStr);
+      if (!Number.isFinite(numeric)) return '에러';
+      const [integer, decimal] = valueStr.split('.');
+      const withComma = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return decimal !== undefined ? `${withComma}.${decimal}` : withComma;
+    };
+
+    const updateDisplay = () => {
+      resultEl.textContent = formatDisplay(current);
+      const opSymbol = { '+': '+', '-': '−', '*': '×', '/': '÷' }[operation] || '';
+      historyEl.textContent = previous !== null && operation ? `${formatNumber(previous)} ${opSymbol}` : '';
+    };
+
+    const clearAll = () => {
+      current = '0';
+      previous = null;
+      operation = null;
+      overwrite = false;
+      updateDisplay();
+    };
+
+    const appendDigit = (digit) => {
+      if (current === '에러') current = '0';
+      if (overwrite) {
+        current = digit;
+        overwrite = false;
+      } else if (current === '0') {
+        current = digit;
+      } else {
+        current += digit;
+      }
+      updateDisplay();
+    };
+
+    const appendDecimal = () => {
+      if (current === '에러') current = '0';
+      if (overwrite) {
+        current = '0.';
+        overwrite = false;
+      } else if (!current.includes('.')) {
+        current += '.';
+      }
+      updateDisplay();
+    };
+
+    const setPercent = () => {
+      const value = parseFloat(current);
+      if (!Number.isFinite(value)) return;
+
+      const percent = value / 100;
+      current = percent.toString();
+      overwrite = true;
+      updateDisplay();
+    };
+
+    const deleteLast = () => {
+      if (overwrite) {
+        overwrite = false;
+        current = '0';
+      } else if (current.length > 1) {
+        current = current.slice(0, -1);
+      } else {
+        current = '0';
+      }
+      updateDisplay();
+    };
+
+    const chooseOperation = (op) => {
+      if (current === '에러') return;
+      const value = parseFloat(current);
+      if (!Number.isFinite(value)) return;
+
+      if (previous !== null && operation && !overwrite) {
+        const computed = compute(previous, value, operation);
+        previous = computed;
+        current = Number.isFinite(computed) ? computed.toString() : '에러';
+      } else {
+        previous = value;
+      }
+
+      operation = op;
+      overwrite = true;
+      updateDisplay();
+    };
+
+    const compute = (a, b, op) => {
+      switch (op) {
+        case '+': return a + b;
+        case '-': return a - b;
+        case '*': return a * b;
+        case '/': return b === 0 ? NaN : a / b;
+        default: return b;
+      }
+    };
+
+    const evaluate = () => {
+      if (operation === null || previous === null) return;
+      const value = parseFloat(current);
+      if (!Number.isFinite(value)) return;
+
+      const result = compute(previous, value, operation);
+      current = Number.isFinite(result) ? result.toString() : '에러';
+      historyEl.textContent = `${formatNumber(previous)} ${operation.replace('/', '÷').replace('*', '×')} ${formatNumber(value)} =`;
+      previous = null;
+      operation = null;
+      overwrite = true;
+      updateDisplay();
+    };
+
+    document.querySelectorAll('[data-number]').forEach((button) => {
+      button.addEventListener('click', () => appendDigit(button.textContent.trim()));
+    });
+
+    document.querySelectorAll('[data-operation]').forEach((button) => {
+      button.addEventListener('click', () => chooseOperation(button.dataset.operation));
+    });
+
+    document.querySelector('[data-action="decimal"]').addEventListener('click', appendDecimal);
+    document.querySelector('[data-action="clear"]').addEventListener('click', clearAll);
+    document.querySelector('[data-action="delete"]').addEventListener('click', deleteLast);
+    document.querySelector('[data-action="equals"]').addEventListener('click', evaluate);
+    document.querySelector('[data-action="percent"]').addEventListener('click', setPercent);
+
+    const keyMap = {
+      '+': () => chooseOperation('+'),
+      '-': () => chooseOperation('-'),
+      '*': () => chooseOperation('*'),
+      '/': () => chooseOperation('/'),
+      'Enter': evaluate,
+      '=': evaluate,
+      'Backspace': deleteLast,
+      'Escape': clearAll,
+      '.': appendDecimal,
+    };
+
+    window.addEventListener('keydown', (event) => {
+      if (event.key >= '0' && event.key <= '9') {
+        appendDigit(event.key);
+        return;
+      }
+
+      const action = keyMap[event.key];
+      if (action) {
+        event.preventDefault();
+        action();
+      }
+    });
+
+    clearAll();
+  </script>
+</body>
+</html>
