@@ -1,0 +1,85 @@
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #f7f7f7;
+  color: #222;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #ececec;
+}
+
+.label {
+  display: inline-block;
+  background: #e8f0ff;
+  color: #1a53ff;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-right: 6px;
+  font-size: 12px;
+}
+
+.form {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.form input, .form textarea {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #d0d7de;
+  font-size: 14px;
+}
+
+.button-row {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  background: #1a53ff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #555;
+}
